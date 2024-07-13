@@ -2,7 +2,7 @@
 
 ## Objective
 
-The purpose of this lab is to introduce the student to the OpenCL API by implementing vector addition. The student will implement vector addition by writing the GPU kernel code as well as the associated host code.
+The purpose of this lab is to introduce the student to the OpenCL API by implementing vector addition. The student will implement vector addition by writing the OpenCL kernel code as well as the associated host code.
 
 ## Instructions
 
@@ -28,10 +28,8 @@ Use the `make run` command to test your program. There are a total of 10 tests o
 
 ## Dataset Generation (optional)
 
-### DISCLAIMER: NEEDS TO BE CONVERTED TO C FOR HELPER LIBRARY
-
 The dataset required to test the program is already generated. If you are interested in how the dataset is generated please refer to the `dataset_generator.py` file in the `Dataset` directory. You may run this script using `python dataset_generator.py`.
 
 ## Submission
 
-Submit the `main.c` and `kernel.cl` files on gradescope. Preserve the file name while uploading to gradescope.
+Submit the `main.c` and `kernel.cl` files on Gradescope. Preserve the file name while uploading to Gradescope.  Report your time analysis.

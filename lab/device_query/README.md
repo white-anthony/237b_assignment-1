@@ -27,4 +27,4 @@ _Credits: Khronos Group_
 The `main.c` file contains the host code for the programming assignment; there is no associated device kernel code for this assignment. There is a Makefile included which compiles it. It can be run by typing `make` from the DeviceQuery folder. It generates a `device_query` output file.  Simply run this with `./device_query`, which will print device information to the console.
 
 ## Submission
-put it onto gradescope and answer a quiz or something idk 
+Submit the results of this as part of your report.

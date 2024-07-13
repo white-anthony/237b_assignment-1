@@ -1,79 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <CL/cl.h>
-#include "readVector.h"
 
-#define MAX_SOURCE_SIZE (0x100000)
+#include "device.h"
+#include "kernel.h"
+#include "matrix.h"
 
-#define CHECK_ERR(err, msg) \
-    if (err != CL_SUCCESS) { \
+#define CHECK_ERR(err, msg)                           \
+    if (err != CL_SUCCESS)                            \
+    {                                                 \
         fprintf(stderr, "%s failed: %d\n", msg, err); \
-        exit(EXIT_FAILURE); \
+        exit(EXIT_FAILURE);                           \
     }
 
-int main(int argc, char *argv[]) {
-    if (argc != 4) {
+#define KERNEL_PATH "kernel.cl"
+
+int main(int argc, char *argv[])
+{
+    if (argc != 4)
+    {
         fprintf(stderr, "Usage: %s <input_file_0> <input_file_1> <output_file>\n", argv[0]);
-        return EXIT_FAILURE;
+        return -1;
     }
 
-    const char* inputFile1 = argv[1];
-    const char* inputFile2 = argv[2];
-    const char* outputFile = argv[3];
+    const char *input_file_a = argv[1];
+    const char *input_file_b = argv[2];
+    const char *input_file_c = argv[3];
 
-    // Load kernel source code
-    FILE *kernel_file;
-    char *kernel_source;
-
-    kernel_file = fopen("kernel.cl", "r");
-    if (!kernel_file) {
-        fprintf(stderr, "Failed to open kernel file.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    kernel_source = (char *)malloc(MAX_SOURCE_SIZE);
-    fread(kernel_source, 1, MAX_SOURCE_SIZE, kernel_file);
-    fclose(kernel_file);
+    // Load external OpenCL kernel code
+    char *kernel_source = OclLoadKernel(KERNEL_PATH); // Load kernel source
 
     // Host input and output vectors and sizes
-    float *h_a, *h_b, *h_c;
-    int a_size, b_size, c_size;
+    Matrix host_a, host_b, host_c;
 
-    // Device input and output buffers 
-    cl_mem d_a;
-    cl_mem d_b;
-    cl_mem d_c;
+    // Device input and output buffers
+    cl_mem device_a, device_b, device_c;
 
     size_t global_item_size, local_item_size;
     cl_int err;
 
-    cl_platform_id cpPlatform;        // OpenCL platform
-    cl_device_id device_id;           // device ID
-    cl_context context;               // context
-    cl_command_queue queue;           // command queue
-    cl_program program;               // program
-    cl_kernel kernel;                 // kernel
+    cl_platform_id cpPlatform; // OpenCL platform
+    cl_device_id device_id;    // device ID
+    cl_context context;        // context
+    cl_command_queue queue;    // command queue
+    cl_program program;        // program
+    cl_kernel kernel;          // kernel
 
-    err = readVector(inputFile1, &h_a, &a_size);
-    if (err != CL_SUCCESS)
-        exit(EXIT_FAILURE);
-    err = readVector(inputFile2, &h_b, &b_size);
-    if (err != CL_SUCCESS)
-        exit(EXIT_FAILURE);
-    err = readVector(outputFile, &h_c, &c_size);
-    if (err != CL_SUCCESS)
-        exit(EXIT_FAILURE);
+    err = LoadMatrix(input_file_a, &host_a);
+    CHECK_ERR(err, "LoadMatrix");
 
-    printf("Vector Length: %d\n", a_size);
+    err = LoadMatrix(input_file_b, &host_b);
+    CHECK_ERR(err, "LoadMatrix");
 
-    // Bind to platform
-    err = clGetPlatformIDs(1, &cpPlatform, NULL);
-    CHECK_ERR(err, "clGetPlatformIDs");
+    err = LoadMatrix(input_file_c, &host_c);
+    CHECK_ERR(err, "LoadMatrix");
 
-    // Get ID for the device
-    err = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR | CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-    CHECK_ERR(err, "clGetDeviceIDs");
+    printf("Vector Shape: [%u, %u]\n", host_a.shape[0], host_a.shape[1]);
+
+    // Find platforms and devices
+    OclPlatformProp *platforms = NULL;
+    cl_uint num_platforms;
+
+    err = OclFindPlatforms((const OclPlatformProp **)&platforms, &num_platforms);
+    CHECK_ERR(err, "OclFindPlatforms");
+
+    // Get ID for first device on first platform
+    device_id = platforms[0].devices[0].device_id;
 
     // Create a context
     context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
@@ -81,10 +72,10 @@ int main(int argc, char *argv[]) {
 
     // Create a command queue
     queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
-    CHECK_ERR(err, "clCreateCommandQueue");
+    CHECK_ERR(err, "clCreateCommandQueueWithProperties");
 
     // Create the program from the source buffer
-    program = clCreateProgramWithSource(context, 1, (const char**)&kernel_source, NULL, &err);
+    program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source, NULL, &err);
     CHECK_ERR(err, "clCreateProgramWithSource");
 
     // Build the program executable
@@ -96,85 +87,42 @@ int main(int argc, char *argv[]) {
     CHECK_ERR(err, "clCreateKernel");
 
     //@@ Allocate GPU memory here
-    // Create memory buffers for input and output vectors
-    d_a = clCreateBuffer(context, CL_MEM_READ_ONLY, a_size * sizeof(float), NULL, &err);
-    CHECK_ERR(err, "clCreateBuffer d_a");
-    d_b = clCreateBuffer(context, CL_MEM_READ_ONLY, b_size * sizeof(float), NULL, &err);
-    CHECK_ERR(err, "clCreateBuffer d_b");
-    d_c = clCreateBuffer(context, CL_MEM_WRITE_ONLY, c_size * sizeof(float), NULL, &err);
-    CHECK_ERR(err, "clCreateBuffer d_c");
 
     //@@ Copy memory to the GPU here
-    // Copy input vectors to memory buffers
-    err = clEnqueueWriteBuffer(queue, d_a, CL_TRUE, 0, a_size * sizeof(float), h_a, 0, NULL, NULL);
-    CHECK_ERR(err, "clEnqueueWriteBuffer d_a");
-    err = clEnqueueWriteBuffer(queue, d_b, CL_TRUE, 0, b_size * sizeof(float), h_b, 0, NULL, NULL);
-    CHECK_ERR(err, "clEnqueueWriteBuffer d_b");
 
     // Set the arguments to our compute kernel
-    err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &d_a);
+    unsigned int size_a = host_a.shape[0] * host_a.shape[1];
+    err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &device_a);
     CHECK_ERR(err, "clSetKernelArg 0");
-    err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_b);
+    err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &device_b);
     CHECK_ERR(err, "clSetKernelArg 1");
-    err |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &d_c);
+    err |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &device_c);
     CHECK_ERR(err, "clSetKernelArg 2");
-    err |= clSetKernelArg(kernel, 3, sizeof(int), &a_size);
+    err |= clSetKernelArg(kernel, 3, sizeof(unsigned int), &size_a);
     CHECK_ERR(err, "clSetKernelArg 3");
 
     //@@ Initialize the global size and local size here
-    global_item_size = a_size;
-    local_item_size = 1;
 
     //@@ Launch the GPU Kernel here
-    // Execute the OpenCL kernel on the array
-    err = clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
-    CHECK_ERR(err, "clEnqueueNDRangeKernel");
-
-    // Wait for the command queue to get serviced before reading back results
-    clFlush(queue);
-    clFinish(queue);
 
     //@@ Copy the GPU memory back to the CPU here
-    // Read the memory buffer output_mem_obj to the local variable result
-    float *result = (float *)malloc(c_size * sizeof(float));
-    err = clEnqueueReadBuffer(queue, d_c, CL_TRUE, 0, c_size * sizeof(float), result, 0, NULL, NULL);
-
-    // Compare result with existing_result if it exists                                                                       // |
-    if (c_size == a_size) {                                                                                                   // |
-        float tolerance = 1e-4;                                                                                               // |
-        int different = 0;                                                                                                    // |
-        for (int i = 0; i < a_size; i++) {                                                                                    // |
-            if (fabs(result[i] - h_c[i]) > tolerance) {                                                                       // |
-                different = 1;                                                                                                // |
-                printf("FAILED: Difference found at index %d: %.2f (actual) != %.2f (expected)\n", i, result[i], h_c[i]);     // |
-            }                                                                                                                 // |
-        }                                                                                                                     // |
-        if (!different) {                                                                                                     // |
-            printf("PASSED\n");                                                                                               // |
-            return EXIT_SUCCESS;                                                                                              // |
-        }                                                                                                                     // |
-    }                                                                                                                         // |
-    else {                                                                                                                    // |
-        printf("FAILED: Actual and expected vector sizes do not match.\n");                                                   // |
-    }                                                                                                                         // |
-    // ==========================================================================================================================|
+    
+    // Prints the results
+    for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
+    {
+        printf("C[%u]: %f == %f\n", i, host_c.data[i], host_a.data[i] + host_b.data[i]);
+    }
+    // Save the result
+    SaveMatrix("./output.raw", host_c.data);
 
     //@@ Free the GPU memory here
-    // Release OpenCL resources
-    clReleaseMemObject(d_a);
-    clReleaseMemObject(d_b);
-    clReleaseMemObject(d_c);
-    clReleaseProgram(program);
-    clReleaseKernel(kernel);
-    clReleaseCommandQueue(queue);
-    clReleaseContext(context);
 
     // Release host memory
-    free(h_a);
-    free(h_b);
-    free(h_c);
+    free(host_a.data);
+    free(host_b.data);
+    free(host_c.data);
     free(kernel_source);
     free(result);
-    
+
     return 0;
 }

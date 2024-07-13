@@ -24,10 +24,10 @@ The purpose of this portion of the lab is to familiarize the student with the un
 
 The instructions for this portion of the lab is located in `lab/device_query/README.md`.
 
-## Raytracer Sequential 
+### Raytracer Sequential 
 This is a ray tracer program that creates `output.png` using your CPU sequentially.  Examine `main.c` and understand what it does.  Run this program with the `time` command and report the results as part of your report for the assignment.
 
-## Raytracer Parallel
+### Raytracer Parallel
 This is a ray tracer program that creates `output.png` using your CPU as an OpenCL device. Examine `main.c` and `kernel.cl`. Run this program with the `time` command and report the results as part of your report for the assignment.
 
 Think about why the results from `time` differ.  What can this tell you about OpenCL?  Report your thoughts in your report.

@@ -36,3 +36,6 @@ Think about why the results from `time` differ.  What can this tell you about Op
 The purpose of this lab is to introduce the student to the OpenCL API by implementing vector addition. The student will implement vector addition by writing the OpenCL kernel code as well as the associated host code.
 
 The instructions for this portion of the homework is located in `homework/vector_add/README.md`.
+
+## Resources
+* [Documentation](https://www.khronos.org/opencl/)

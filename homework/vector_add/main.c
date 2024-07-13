@@ -139,7 +139,6 @@ int main(int argc, char *argv[]) {
     float *result = (float *)malloc(c_size * sizeof(float));
     err = clEnqueueReadBuffer(queue, d_c, CL_TRUE, 0, c_size * sizeof(float), result, 0, NULL, NULL);
 
-    // THIS NEEDS TO BE MADE INTO A HELPER LIBRARY FUCNTION =====================================================================|
     // Compare result with existing_result if it exists                                                                       // |
     if (c_size == a_size) {                                                                                                   // |
         float tolerance = 1e-4;                                                                                               // |

@@ -6,7 +6,7 @@ INCFLAGS = -I/usr/local/cuda/include
 solution: main.c
 	$(CC) $(CFLAGS) main.c readVector.c -o solution $(INCFLAGS) $(LDFLAGS)
 
-run: 
+run: solution
 	./solution Dataset/0/input0.raw Dataset/0/input1.raw Dataset/0/output.raw
 	./solution Dataset/1/input0.raw Dataset/1/input1.raw Dataset/1/output.raw
 	./solution Dataset/2/input0.raw Dataset/2/input1.raw Dataset/2/output.raw

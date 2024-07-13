@@ -108,6 +108,8 @@ float3 shadeRayHit(Ray ray, size_t num_lights, size_t num_spheres) {
 }
 
 ;int main (int argc, char *argv[]) {
+    printf("Starting Sequential Ray Tracing...");
+
     // Time measurement variables
     clock_t start, end;
     double cpu_time_used;

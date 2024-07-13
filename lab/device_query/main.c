@@ -15,6 +15,9 @@ cl_int status;
 
 int main(void)
 {
+    // Print this out so that we can tell if this software ran.
+    printf("Finding OpenCL Platforms...\n");
+
     // Find all OpenCL platforms and devices on host machine
     status = OclFindPlatforms((const OclPlatformProp **)&platforms, &num_platforms);
     if (status != CL_SUCCESS)

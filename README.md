@@ -17,6 +17,16 @@ sudo apt update
 sudo apt install intel-oneapi-runtime-libs opencl-headers
 ```
 
+### Windows
+
+Download the `zip` file from the Kronos Group containing the [OpenCL-SDK](https://github.com/KhronosGroup/OpenCL-SDK/releases) for the latest release.  Make sure you grab the `x86` version, NOT the `x64` version.  Extract it to the directory `C:\OpenCL-SDK`. Both `lib` and `include` should be in this directory.
+
+Install the latest version of Visual Studio.  Make sure you install `Desktop development with C++`.  You must also install the `C++ Clang tools for Windows`.
+
+### macOS
+
+There should be no requried dependencies.  We will confirm this in lab.
+
 ## Lab
 
 ### Device Query

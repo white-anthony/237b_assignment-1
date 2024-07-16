@@ -32,11 +32,11 @@ In `code-server` in your browser, open up terminal by selecting the Hamburger me
 3. `cat ~/.ssh/id_ed25519.pub`.  Add this ssh key to your GitHub account.
 4. `git clone git@github.com:ucsd-wes-237b/assignment-1.git`.  Open the folder in `code-server` using the Hamburger menu -> File -> Open Folder.
 5. `pkg install build-essential`
-6. `pkg install ocl-icd`
-7. `pkg install opencl-headers`
-8. Add `export LD_LIBRARY_PATH=/system/vendor/lib64/egl:$LD_LIBRARY_PATH` to your `~/.bashrc`
-9. `source ~/.bashrc`.  You will only need to do this until you restart your phone.
-10. `cd assignment-1`
+6. `pkg install binutils`
+7. `pkg install ocl-icd`
+8. `pkg install opencl-headers`
+9. Add `export LD_LIBRARY_PATH=/system/vendor/lib64/egl:$LD_LIBRARY_PATH` to your `~/.bashrc`
+10. `source ~/.bashrc`.  You will only need to do this until you restart your phone.
 11. `git submodule update --init --recursive`
 12. `cd ./lab/device_query`
 13. `make`

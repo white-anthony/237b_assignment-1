@@ -35,7 +35,7 @@ In `code-server` in your browser, open up terminal by selecting the Hamburger me
 6. `pkg install binutils`
 7. `pkg install ocl-icd`
 8. `pkg install opencl-headers`
-9. Add `export LD_LIBRARY_PATH=/system/vendor/lib64/egl:$LD_LIBRARY_PATH` to your `~/.bashrc`
+9. Add `export LD_LIBRARY_PATH=/system/vendor/lib64/egl:/system/vendor/lib64:$LD_LIBRARY_PATH` to your `~/.bashrc`
 10. `source ~/.bashrc`.  You will only need to do this until you restart your phone.
 11. `git submodule update --init --recursive`
 12. `cd ./lab/device_query`

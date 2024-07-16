@@ -2,30 +2,45 @@
 
 ## Setup
 
-### Intel Ubuntu (including WSL2)
+### F-Droid
+Using Google Chrome on your Pixel Fold, navigate to the F-Droid [website](https://f-droid.org/en/).  Click on the `DOWNLOAD F-DROID` button.  This will download the `apk` for F-Droid.  Look for the notification for the download.  Once you tap it, you will be prompted with the screen to enable installation of `apk`s from Google Chrome.  Turn on the setting and continue.
 
-```bash
-# download the key to system keyring
-wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-| gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+### Termux
+Open F-Droid and search for `Termux`.  Install the package `Termux: Terminal Editor with Packages`.  this will once again prompt you to enable the installation of `apk`s from F-Droid.  Turn on the setting and continue.  You will then be warned that `Termux` is intended for an older version of Android.  Click `More Information` and select `Install anyway`.  Start `Termux`, accept notifications.  Close `Termux`.  Start `Termux` again.  Check your notifications, expand the `Termux` notification and click `Aquire wake lock`.
 
-# add signed entry to apt sources and configure the APT client to use Intel repository:
-echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+### Install Code Server
+In `Termux` perform the following
+1. `pkg update`
+2. `pkg upgrade`.  Accept all of the defaults
+3. `pkg install tur-repo`
+4. `pkg install code-server`
 
-# install the packages for Intel OpenCL
-sudo apt update
-sudo apt install intel-oneapi-runtime-libs opencl-headers
-```
+### Launch Code Server
+Run the following command to start the `code-server`:
 
-### Windows
+* With authentication: `code-server --bind-addr 0.0.0.0:8080, find the password in /code-server/config.yaml`
+* Without authentication: `code-server --auth none --bind-addr 0.0.0.0:8080`
 
-Download the `zip` file from the Kronos Group containing the [OpenCL-SDK](https://github.com/KhronosGroup/OpenCL-SDK/releases) for the latest release.  Make sure you grab the `x86` version, NOT the `x64` version.  Extract it to the directory `C:\OpenCL-SDK`. Both `lib` and `include` should be in this directory.
+Navivate to Settings -> About phone.  Look for your IPv4 address.
 
-Install the latest version of Visual Studio.  Make sure you install `Desktop development with C++`.  You must also install the `C++ Clang tools for Windows`.
+In your browser on your laptop, navigate to `http:<IPv4>:8080`.
 
-### macOS
-
-There should be no requried dependencies.  We will confirm this in lab.
+### Downloading the Repo
+In `code-server` in your browser, open up terminal by selecting the Hamburger menu->View->Terminal.  Run the following commands
+1. `pkg install git`
+2. `ssh-keygen`.  Accept the defaults.
+3. `cat ~/.ssh/id_ed25519.pub`.  Add this ssh key to your GitHub account.
+4. `git clone git@github.com:ucsd-wes-237b/assignment-1.git`.  Open the folder in `code-server` using the Hamburger menu -> File -> Open Folder.
+5. `pkg install build-essential`
+6. `pkg install ocl-icd`
+7. `pkg install opencl-headers`
+8. Add `export LD_LIBRARY_PATH=/system/vendor/lib64/egl:$LD_LIBRARY_PATH` to your `~/.bashrc`
+9. `source ~/.bashrc`.  You will only need to do this until you restart your phone.
+10. `cd assignment-1`
+11. `git submodule update --init --recursive`
+12. `cd ./lab/device_query`
+13. `make`
+14. `./device_query`
 
 ## Lab
 

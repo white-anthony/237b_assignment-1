@@ -34,3 +34,4 @@ run: solution
 	
 clean: 
 	rm -f solution
+	cd ../../helper_lib; make clean

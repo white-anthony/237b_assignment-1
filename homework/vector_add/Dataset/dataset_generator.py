@@ -20,7 +20,7 @@ def generate_input_files(folder_path, folder_index):
 def generate_output_file(folder_path, input_values):
     with open(os.path.join(folder_path, 'output.raw'), 'w') as file:
         N = input_values[0][0]
-        file.write(f"{N}\n")
+        file.write(f"# ({N}, 1)\n")
         for j in range(1, N+1):
             sum_value = input_values[0][j] + input_values[1][j]
             file.write(f"{sum_value:.2f} ")

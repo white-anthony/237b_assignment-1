@@ -1,4 +1,4 @@
-# Programming Assignment 2: Vector Addition
+# Programming Assignment 1: Vector Addition
 
 ## Objective
 

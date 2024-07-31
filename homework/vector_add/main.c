@@ -116,12 +116,12 @@ int main(int argc, char *argv[])
     // Prints the results
     for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
     {
-        printf("C[%u]: %f == %f\n", i, host_c.data[i], host_a.data[i] + host_b.data[i]);
+        printf("C[%u]: %f == %f\n", i, host_c.data[i], answer.data[i]);
     }
 
     CheckMatrix(&answer, &host_c);
     // Save the result
-    SaveMatrix(input_file_d, host_c.data);
+    SaveMatrix(input_file_d, &host_c.data);
 
     //@@ Free the GPU memory here
 

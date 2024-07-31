@@ -113,11 +113,11 @@ int main(int argc, char *argv[])
 
     //@@ Copy the GPU memory back to the CPU here
     
-    // Prints the results
-    for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
-    {
-        printf("C[%u]: %f == %f\n", i, host_c.data[i], answer.data[i]);
-    }
+    // // Prints the results
+    // for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
+    // {
+    //     printf("C[%u]: %f == %f\n", i, host_c.data[i], answer.data[i]);
+    // }
 
     CheckMatrix(&answer, &host_c);
     // Save the result

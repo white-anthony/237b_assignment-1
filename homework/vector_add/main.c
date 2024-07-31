@@ -58,7 +58,9 @@ int main(int argc, char *argv[])
     printf("Vector Shape: [%u, %u]\n", host_a.shape[0], host_a.shape[1]);
 
     // Allocate the memory for the target.
-    host_c.data = (float *)malloc(sizeof(float) * host_a.shape[0] * host_a.shape[1]);
+    host_c.shape[0] = host_a.shape[0];
+    host_c.shape[1] = host_a.shape[1];
+    host_c.data = (float *)malloc(sizeof(float) * host_c.shape[0] * host_c.shape[1]);
 
     // Find platforms and devices
     OclPlatformProp *platforms = NULL;

@@ -16,21 +16,22 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4)
+    if (argc != 5)
     {
-        fprintf(stderr, "Usage: %s <input_file_0> <input_file_1> <output_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file_0> <input_file_1> <answer_file> <output_file>\n", argv[0]);
         return -1;
     }
 
     const char *input_file_a = argv[1];
     const char *input_file_b = argv[2];
     const char *input_file_c = argv[3];
+    const char *input_file_d = argv[4];
 
     // Load external OpenCL kernel code
     char *kernel_source = OclLoadKernel(KERNEL_PATH); // Load kernel source
 
     // Host input and output vectors and sizes
-    Matrix host_a, host_b, host_c;
+    Matrix host_a, host_b, host_c, answer;
 
     // Device input and output buffers
     cl_mem device_a, device_b, device_c;
@@ -51,10 +52,13 @@ int main(int argc, char *argv[])
     err = LoadMatrix(input_file_b, &host_b);
     CHECK_ERR(err, "LoadMatrix");
 
-    err = LoadMatrix(input_file_c, &host_c);
+    err = LoadMatrix(input_file_c, &answer);
     CHECK_ERR(err, "LoadMatrix");
 
     printf("Vector Shape: [%u, %u]\n", host_a.shape[0], host_a.shape[1]);
+
+    // Allocate the memory for the target.
+    host_c.data = (float *)malloc(sizeof(float) * host_a.shape[0] * host_a.shape[1]);
 
     // Find platforms and devices
     OclPlatformProp *platforms = NULL;
@@ -112,8 +116,10 @@ int main(int argc, char *argv[])
     {
         printf("C[%u]: %f == %f\n", i, host_c.data[i], host_a.data[i] + host_b.data[i]);
     }
+
+    CheckMatrix(&answer, &host_c);
     // Save the result
-    SaveMatrix("./output.raw", host_c.data);
+    SaveMatrix(input_file_d, host_c.data);
 
     //@@ Free the GPU memory here
 
@@ -121,6 +127,7 @@ int main(int argc, char *argv[])
     free(host_a.data);
     free(host_b.data);
     free(host_c.data);
+    free(answer.data);
     free(kernel_source);
     free(result);
 

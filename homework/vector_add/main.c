@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
     size_t global_item_size, local_item_size;
     cl_int err;
 
-    cl_platform_id cpPlatform; // OpenCL platform
     cl_device_id device_id;    // device ID
     cl_context context;        // context
     cl_command_queue queue;    // command queue
@@ -121,7 +120,7 @@ int main(int argc, char *argv[])
 
     CheckMatrix(&answer, &host_c);
     // Save the result
-    SaveMatrix(input_file_d, &host_c.data);
+    SaveMatrix(input_file_d, &host_c);
 
     //@@ Free the GPU memory here
 
@@ -131,7 +130,6 @@ int main(int argc, char *argv[])
     free(host_c.data);
     free(answer.data);
     free(kernel_source);
-    free(result);
 
     return 0;
 }

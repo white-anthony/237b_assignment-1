@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
     err = LoadMatrix(input_file_c, &answer);
     CHECK_ERR(err, "LoadMatrix");
 
-    printf("Vector Shape: [%u, %u]\n", host_a.shape[0], host_a.shape[1]);
-
     // Allocate the memory for the target.
     host_c.shape[0] = host_a.shape[0];
     host_c.shape[1] = host_a.shape[1];

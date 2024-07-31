@@ -1,5 +1,5 @@
 CC = gcc 
-CFLAGS = -O2 -Wall -lm
+CFLAGS = -O2 -Wall
 
 ifeq ($(shell uname -s),Darwin)
     LDFLAGS = -framework OpenCL

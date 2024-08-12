@@ -1,4 +1,6 @@
-__kernel void vectorAdd(__global const float *a, __global const float *b,
-                        __global float *result, const unsigned int size) {
-  //@@ Insert code to implement vector addition here
+__kernel void vectorAdd(__global float *a, __global float *b, __global float *c, const unsigned int size) {
+    int i = get_global_id(0);
+    if (i < size) {
+        c[i] = a[i] + b[i];
+    }
 }

@@ -90,8 +90,21 @@ int main(int argc, char *argv[])
     CHECK_ERR(err, "clCreateKernel");
 
     //@@ Allocate GPU memory here
+    device_a = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * host_a.shape[0] * host_a.shape[1], NULL, &err);
+    CHECK_ERR(err, "clCreateBuffer device_a");
+    
+    device_b = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * host_b.shape[0] * host_b.shape[1], NULL, &err);
+    CHECK_ERR(err, "clCreateBuffer device_b");
+
+    device_c = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * host_c.shape[0] * host_c.shape[1], NULL, &err);
+    CHECK_ERR(err, "clCreateBuffer device_c");
 
     //@@ Copy memory to the GPU here
+    err = clEnqueueWriteBuffer(queue, device_a, CL_TRUE, 0, sizeof(float) * host_a.shape[0] * host_a.shape[1], host_a.data, 0, NULL, NULL);
+    CHECK_ERR(err, "clEnqueueWriteBuffer device_a");
+
+    err = clEnqueueWriteBuffer(queue, device_b, CL_TRUE, 0, sizeof(float) * host_b.shape[0] * host_b.shape[1], host_b.data, 0, NULL, NULL);
+    CHECK_ERR(err, "clEnqueueWriteBuffer device_b");
 
     // Set the arguments to our compute kernel
     unsigned int size_a = host_a.shape[0] * host_a.shape[1];
@@ -105,22 +118,39 @@ int main(int argc, char *argv[])
     CHECK_ERR(err, "clSetKernelArg 3");
 
     //@@ Initialize the global size and local size here
+    size_t max_local_size;
+    err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(max_local_size), &max_local_size, NULL);
+    CHECK_ERR(err, "clGetKernelWorkGroupInfo");
+
+    // Set local size to the minimum of 64 or the maximum work group size supported
+    local_item_size = (max_local_size < 64) ? max_local_size : 64;
+
+    // Ensure global size is a multiple of local size
+    global_item_size = ((size_a + local_item_size - 1) / local_item_size) * local_item_size;
 
     //@@ Launch the GPU Kernel here
+    err = clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+    CHECK_ERR(err, "clEnqueueNDRangeKernel");
+
 
     //@@ Copy the GPU memory back to the CPU here
-    
-    // // Prints the results
-    // for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
-    // {
-    //     printf("C[%u]: %f == %f\n", i, host_c.data[i], answer.data[i]);
-    // }
+    err = clEnqueueReadBuffer(queue, device_c, CL_TRUE, 0, sizeof(float) * host_c.shape[0] * host_c.shape[1], host_c.data, 0, NULL, NULL);
+    CHECK_ERR(err, "clEnqueueReadBuffer device_c");
+
+//    // Prints the results
+//     for (unsigned int i = 0; i < host_c.shape[0] * host_c.shape[1]; i++)
+//     {
+//         printf("C[%u]: %f == %f\n", i, host_c.data[i], answer.data[i]);
+//     }
 
     CheckMatrix(&answer, &host_c);
     // Save the result
     SaveMatrix(input_file_d, &host_c);
 
     //@@ Free the GPU memory here
+    clReleaseMemObject(device_a);
+    clReleaseMemObject(device_b);
+    clReleaseMemObject(device_c);
 
     // Release host memory
     free(host_a.data);
